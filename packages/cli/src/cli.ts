@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { resolve } from "node:path";
-import { setStorePath } from "@factlayer/core";
-import { runAdd, runScan, runVerify } from "./commands.ts";
+import { classify, setStorePath } from "@factlayer/core";
+import { runAdd, runScan, runVerify } from "./commands";
 
 setStorePath(resolve(process.cwd(), "factcheck.db"));
 
@@ -9,11 +9,12 @@ const [command, ...args] = process.argv.slice(2);
 
 switch (command) {
   case "add": {
-    const [text, category] = args;
-    if (!text || !category) {
-      console.error('Usage: factcheck add "<text>" <category>');
+    const [text, categoryArg] = args;
+    if (!text) {
+      console.error('Usage: factcheck add "<text>" [category]');
       process.exit(1);
     }
+    const category = categoryArg ?? classify(text);
     console.log(runAdd(text, category));
     break;
   }

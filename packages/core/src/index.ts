@@ -6,6 +6,7 @@ export {
 } from "./categories";
 export { check } from "./check";
 export type { CheckResult } from "./check.ts";
+export { classify } from "./classify";
 export {
   addFact,
   getFact,
@@ -13,3 +14,4 @@ export {
   markVerified,
   setStorePath,
 } from "./store";
+export type { NewFact } from "./store";

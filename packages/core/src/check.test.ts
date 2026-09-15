@@ -76,6 +76,32 @@ describe("check", () => {
     expect(stale.thresholdInDays).toBe(90);
   });
 
+  it("flags a fact as needs-verification when expiresAt is in the past, regardless of category half-life", () => {
+    const now = Date.now();
+    const fact = makeFact({
+      category: "phoneNumber", // 3650-day half-life, would otherwise be fresh
+      lastVerifiedAt: now - 1 * DAY_MS,
+      expiresAt: now - 1000, // expired a moment ago
+    });
+
+    const result = check(fact, now);
+
+    expect(result.status).toBe("needs-verification");
+  });
+
+  it("treats a fact as fresh when expiresAt is in the future, even past its category's normal threshold", () => {
+    const now = Date.now();
+    const fact = makeFact({
+      category: "location", // 180-day half-life, would otherwise be stale
+      lastVerifiedAt: now - 200 * DAY_MS,
+      expiresAt: now + 1000, // expires a moment from now
+    });
+
+    const result = check(fact, now);
+
+    expect(result.status).toBe("fresh");
+  });
+
   describe("markVerified", () => {
     beforeEach(() => {
       setStorePath(":memory:");
