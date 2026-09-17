@@ -8,6 +8,8 @@ factlayer — a freshness-check layer for AI agent memory. Detects when a
 stored fact (job, location, current project, etc.) is old enough that it
 should be re-verified before an agent states it as current.
 
+(See `PROGRESS.md` for current status and what's next.)
+
 # Tech stack
 
 - Bun (not Node directly) for dev, testing, and running scripts
@@ -35,3 +37,4 @@ should be re-verified before an agent states it as current.
 - Write a test for every new function in core before moving to the next one
 - Run `bun test` after any change to packages/core
 - Don't touch adapter packages until core/ has passing tests
+- Update PROGRESS.md at the end of every task, before reporting it done.

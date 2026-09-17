@@ -3,7 +3,8 @@ import { addFact, check, getFact, listFacts, markVerified } from "@factlayer/cor
 import type { Fact } from "@factlayer/core";
 
 // Creates a new fact with storedAt = lastVerifiedAt = now. Returns its id.
-export function runAdd(text: string, category: string): string {
+// async because addFact() is (classify()'s embedding fallback is async).
+export async function runAdd(text: string, category: string): Promise<string> {
   const now = Date.now();
   const fact: Fact = {
     id: randomUUID(),
@@ -12,7 +13,7 @@ export function runAdd(text: string, category: string): string {
     storedAt: now,
     lastVerifiedAt: now,
   };
-  addFact(fact);
+  await addFact(fact);
   return fact.id;
 }
 

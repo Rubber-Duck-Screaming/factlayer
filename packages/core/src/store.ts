@@ -50,8 +50,10 @@ export function setStorePath(path: string): void {
   db = openDb(path);
 }
 
-export function addFact(fact: NewFact): void {
-  const category = fact.category ?? classify(fact.text);
+// classify() is async (it may fall back to embedding similarity), so
+// addFact is too whenever category is omitted.
+export async function addFact(fact: NewFact): Promise<void> {
+  const category = fact.category ?? (await classify(fact.text));
   getDb().run(
     `INSERT INTO facts (id, text, category, storedAt, lastVerifiedAt, expiresAt)
      VALUES (?, ?, ?, ?, ?, ?)`,

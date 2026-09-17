@@ -14,8 +14,8 @@ switch (command) {
       console.error('Usage: factcheck add "<text>" [category]');
       process.exit(1);
     }
-    const category = categoryArg ?? classify(text);
-    console.log(runAdd(text, category));
+    const category = categoryArg ?? (await classify(text));
+    console.log(await runAdd(text, category));
     break;
   }
 
