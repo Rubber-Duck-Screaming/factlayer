@@ -1,0 +1,22 @@
+{
+  "name": "@factlayer/mcp-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "factlayer-mcp": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@factlayer/adapter-mem0": "workspace:*",
+    "@factlayer/core": "workspace:*",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

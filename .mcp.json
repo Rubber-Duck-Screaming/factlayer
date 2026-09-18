@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "factlayer": {
+      "command": "bun",
+      "args": ["run", "packages/mcp-server/src/index.ts"]
+    }
+  }
+}

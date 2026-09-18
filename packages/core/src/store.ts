@@ -52,11 +52,21 @@ export function setStorePath(path: string): void {
 
 // classify() is async (it may fall back to embedding similarity), so
 // addFact is too whenever category is omitted.
+//
+// Upserts by id: a fact with an id that already exists gets its fields
+// overwritten rather than erroring. This matters for sources like mem0 whose
+// data can change between scans but keeps the same id.
 export async function addFact(fact: NewFact): Promise<void> {
   const category = fact.category ?? (await classify(fact.text));
   getDb().run(
     `INSERT INTO facts (id, text, category, storedAt, lastVerifiedAt, expiresAt)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       text = excluded.text,
+       category = excluded.category,
+       storedAt = excluded.storedAt,
+       lastVerifiedAt = excluded.lastVerifiedAt,
+       expiresAt = excluded.expiresAt`,
     [
       fact.id,
       fact.text,
