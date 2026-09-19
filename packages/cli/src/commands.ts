@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { addFact, check, getFact, listFacts, markVerified } from "@factlayer/core";
+import {
+  addFact,
+  check,
+  getFact,
+  listFacts,
+  markVerified,
+} from "@factlayer/core";
 import type { Fact } from "@factlayer/core";
 
 // Creates a new fact with storedAt = lastVerifiedAt = now. Returns its id.
