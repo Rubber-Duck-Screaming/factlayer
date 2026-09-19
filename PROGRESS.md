@@ -22,7 +22,4 @@
 
 ## Next
 
-- Manual smoke test: run scan_mem0_freshness against the real smoketest
-  mem0 account (MEM0_API_KEY set) via Claude Code, then call mark_verified
-  on one of the returned ids to confirm the end-to-end flow works live,
-  not just in the mocked test suite
+- Manual smoke test
