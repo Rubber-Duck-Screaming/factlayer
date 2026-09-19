@@ -20,7 +20,7 @@ Existing memory tools solve _adjacent_ problems well:
 
 - **Cognee** decays facts based on _how often they're accessed_. Excellent but a wrong fact that's still asked about often looks perfectly healthy by that measure.
 
-- **Mem0** now synthesizes and supersedes facts in the background a real step forward, but still reactive to new information, not proactive about facts that were simply never revisited.
+- **Mem0** now synthesizes and supersedes facts in the background — a real step forward, but still reactive to new information, not proactive about facts that were simply never revisited. Mem0's own 2026 state-of-the-field report names this gap directly. memory decay works for facts nobody cares about anymore, but a fact that's still retrieved constantly can go quietly wrong with nothing to catch it even the team closest to the problem calls it unsolved.
 
 None of them ask the question FactLayer exists to ask: **"nothing has contradicted this fact but it's the kind of fact that tends to change, and it's been a while. Should we trust it blindly?"**
 
@@ -117,7 +117,7 @@ Point any MCP-compatible agent (Claude Code, Claude Desktop, or your own) at Fac
 
 ![Mem0 MCP Loop Demo](./docs/MCP-loop.gif)
 
-![Mem0 MCP Loop Demo](./docs/MCP-loop2.gif)
+![Mem0 MCP Loop Demo](./docs/MCP-loop-2.gif)
 
 Available tools: `check_freshness`, `mark_verified`, `scan_mem0_freshness`.
 
