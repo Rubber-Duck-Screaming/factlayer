@@ -9,3 +9,6 @@ coverage/
 *.tsbuildinfo
 .DS_Store
 .claude/settings.local.json
+*.db
+*.sqlite
+*.sqlite3
