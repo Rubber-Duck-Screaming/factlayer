@@ -1,5 +1,10 @@
 # FactLayer
 
+[![npm core](https://img.shields.io/npm/v/%40factlayer%2Fcore?label=%40factlayer%2Fcore)](https://www.npmjs.com/package/@factlayer/core)
+[![npm cli](https://img.shields.io/npm/v/%40factlayer%2Fcli?label=%40factlayer%2Fcli)](https://www.npmjs.com/package/@factlayer/cli)
+[![npm adapter-mem0](https://img.shields.io/npm/v/%40factlayer%2Fadapter-mem0?label=%40factlayer%2Fadapter-mem0)](https://www.npmjs.com/package/@factlayer/adapter-mem0)
+[![npm mcp-server](https://img.shields.io/npm/v/%40factlayer%2Fmcp-server?label=%40factlayer%2Fmcp-server)](https://www.npmjs.com/package/@factlayer/mcp-server)
+
 **A freshness-check layer for AI agent memory plugs into Mem0, Zep, Cognee, or your own database, and catches facts before they go stale.**
 
 A local-first fact freshness tracking system built to prevent LLM context drift and hallucinations.Your AI agent doesn't forget things. That's the problem. It remembers a customer's city, a user's job, a teammate's role and keeps repeating it with total confidence long after it's stopped being true. Nothing tells it to double-check. Nothing ever will, unless something is built to.
@@ -92,6 +97,10 @@ factcheck verify <id>
 
 ### Using it with an existing memory system
 
+```bash
+bun add @factlayer/adapter-mem0
+```
+
 ```ts
 import { Mem0Adapter } from "@factlayer/adapter-mem0";
 
@@ -119,7 +128,35 @@ Point any MCP-compatible agent (Claude Code, Claude Desktop, or your own) at Fac
 
 ![Mem0 MCP Loop Demo](./docs/MCP-loop-2.gif)
 
-Available tools: `check_freshness`, `mark_verified`, `scan_mem0_freshness`.
+`check_freshness`, `add_fact`, and `scan_facts` work with zero setup they're fully local, backed by FactLayer's own SQLite store, and need no external account. `scan_mem0_freshness` and `scan_zep_freshness` bridge to an existing memory system, so each needs its provider's API key set as an environment variable before starting the server (`MEM0_API_KEY`, `ZEP_API_KEY`).
+
+Available tools:
+
+- `check_freshness` checks whether a fact is fresh or needs re-verification (no setup required)
+- `add_fact` adds a new fact to FactLayer's local store (no setup required)
+- `scan_facts` lists every locally stored fact and checks each for freshness (no setup required)
+- `mark_verified` marks a stored fact as verified as of now (no setup required)
+- `scan_mem0_freshness` scans a Mem0 user's memories end to end and persists them locally (requires `MEM0_API_KEY`)
+- `scan_zep_freshness` scans a Zep user's graph facts end to end and persists them locally (requires `ZEP_API_KEY`)
+
+### Environment variables
+
+Only needed for the two tools that bridge to an existing memory system leave either out if you're not using that provider.
+
+```json
+{
+  "mcpServers": {
+    "factlayer": {
+      "command": "bun",
+      "args": ["run", "packages/mcp-server/src/index.ts"],
+      "env": {
+        "MEM0_API_KEY": "your-mem0-api-key",
+        "ZEP_API_KEY": "your-zep-api-key"
+      }
+    }
+  }
+}
+```
 
 ---
 
