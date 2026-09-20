@@ -1,10 +1,15 @@
 {
   "name": "@factlayer/mcp-server",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.5.0",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
-    "factlayer-mcp": "./src/index.ts"
+    "factlayer-mcp": "./dist/index.js"
   },
   "scripts": {
     "test": "bun test",

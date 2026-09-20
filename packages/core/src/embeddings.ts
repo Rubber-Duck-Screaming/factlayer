@@ -1,5 +1,5 @@
-import { pipeline } from "@xenova/transformers";
-import type { FeatureExtractionPipeline } from "@xenova/transformers";
+import { pipeline } from "@huggingface/transformers";
+import type { FeatureExtractionPipeline } from "@huggingface/transformers";
 
 const MODEL_NAME = "Xenova/all-MiniLM-L6-v2";
 

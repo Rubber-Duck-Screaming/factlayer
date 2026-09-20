@@ -5,7 +5,17 @@ import { runAdd, runScan, runVerify } from "./commands";
 
 setStorePath(resolve(process.cwd(), "factcheck.db"));
 
+const USAGE = "Usage: factcheck <add|scan|verify> [args]";
+
 const [command, ...args] = process.argv.slice(2);
+
+// --help/-h and no arguments are a request for usage, not a mistake -- print
+// it to stdout and exit 0 so scripts can tell "asked for help" apart from
+// "made a mistake" (an actually unknown command still exits non-zero below).
+if (!command || command === "--help" || command === "-h") {
+  console.log(USAGE);
+  process.exit(0);
+}
 
 switch (command) {
   case "add": {
@@ -35,8 +45,8 @@ switch (command) {
   }
 
   default: {
-    console.error(`Unknown command: ${command ?? "(none)"}`);
-    console.error("Usage: factcheck <add|scan|verify> [args]");
+    console.error(`Unknown command: ${command}`);
+    console.error(USAGE);
     process.exit(1);
   }
 }
