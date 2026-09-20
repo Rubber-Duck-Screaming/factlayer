@@ -1,6 +1,8 @@
 {
   "name": "@factlayer/core",
-  "version": "0.5.0",
+  "version": "0.5.3",
+  "description": "Freshness-check engine for AI agent memory: flags aging facts before they're used, with category half-lives and auto-classification.",
+  "keywords": ["ai", "agent-memory", "llm", "freshness", "hallucination", "factlayer"],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +12,8 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "bun run ../../scripts/check-publish-ready.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0"

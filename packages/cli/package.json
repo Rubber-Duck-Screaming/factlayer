@@ -1,6 +1,8 @@
 {
   "name": "@factlayer/cli",
-  "version": "0.5.1",
+  "version": "0.5.3",
+  "description": "Command-line tool for adding facts and re-verifying the ones that have gone stale.",
+  "keywords": ["ai", "agent-memory", "llm", "freshness", "cli", "factlayer"],
   "type": "module",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
@@ -15,7 +17,8 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "bun run ../../scripts/check-publish-ready.ts"
   },
   "dependencies": {
     "@factlayer/core": "workspace:*"

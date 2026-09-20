@@ -11,7 +11,7 @@
     },
     "packages/adapter-mem0": {
       "name": "@factlayer/adapter-mem0",
-      "version": "0.5.0",
+      "version": "0.5.3",
       "dependencies": {
         "@factlayer/core": "workspace:*",
         "mem0ai": "^3.1.8",
@@ -22,7 +22,7 @@
     },
     "packages/cli": {
       "name": "@factlayer/cli",
-      "version": "0.5.0",
+      "version": "0.5.3",
       "bin": {
         "factcheck": "./src/cli.ts",
       },
@@ -35,7 +35,7 @@
     },
     "packages/core": {
       "name": "@factlayer/core",
-      "version": "0.5.0",
+      "version": "0.5.3",
       "dependencies": {
         "@huggingface/transformers": "^4.3.0",
       },
@@ -45,7 +45,7 @@
     },
     "packages/mcp-server": {
       "name": "@factlayer/mcp-server",
-      "version": "0.5.0",
+      "version": "0.5.3",
       "bin": {
         "factlayer-mcp": "./src/index.ts",
       },

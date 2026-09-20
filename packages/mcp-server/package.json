@@ -1,6 +1,8 @@
 {
   "name": "@factlayer/mcp-server",
-  "version": "0.5.0",
+  "version": "0.5.3",
+  "description": "Exposes FactLayer's freshness checks as MCP tools (check_freshness, mark_verified, scan_mem0_freshness).",
+  "keywords": ["ai", "agent-memory", "llm", "freshness", "mcp", "factlayer"],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +15,8 @@
   },
   "scripts": {
     "test": "bun test",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "bun run ../../scripts/check-publish-ready.ts"
   },
   "dependencies": {
     "@factlayer/adapter-mem0": "workspace:*",
