@@ -1,8 +1,8 @@
 {
-  "name": "@factlayer/core",
+  "name": "@factlayer/adapter-zep",
   "version": "0.6.0",
-  "description": "Freshness-check engine for AI agent memory: flags aging facts before they're used, with category half-lives and auto-classification.",
-  "keywords": ["ai", "agent-memory", "llm", "freshness", "hallucination", "factlayer"],
+  "description": "Zep adapter for FactLayer: scans, persists, and checks Zep graph facts for freshness.",
+  "keywords": ["ai", "agent-memory", "llm", "freshness", "zep", "factlayer"],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,8 @@
     "prepublishOnly": "bun run ../../scripts/check-publish-ready.ts"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.3.0"
+    "@factlayer/core": "workspace:*",
+    "@getzep/zep-cloud": "^3.28.0"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

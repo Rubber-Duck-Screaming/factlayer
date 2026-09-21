@@ -10,7 +10,9 @@ import { createMem0Client, scanMem0 } from "../packages/adapter-mem0/src/index";
 
 const apiKey = process.env.MEM0_API_KEY;
 if (!apiKey) {
-  console.error("Set MEM0_API_KEY in the environment before running this script.");
+  console.error(
+    "Set MEM0_API_KEY in the environment before running this script.",
+  );
   process.exit(1);
 }
 
@@ -24,7 +26,13 @@ try {
 
   const scanned = await scanMem0(client, { filters });
   console.log("\n=== mapped Facts (after mapping) ===");
-  console.log(JSON.stringify(scanned.map((s) => s.fact), null, 2));
+  console.log(
+    JSON.stringify(
+      scanned.map((s) => s.fact),
+      null,
+      2,
+    ),
+  );
 } catch (error) {
   console.error("smoke-mem0 failed:", error);
   process.exit(1);

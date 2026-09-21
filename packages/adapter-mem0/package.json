@@ -1,6 +1,6 @@
 {
   "name": "@factlayer/adapter-mem0",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Mem0 adapter for FactLayer: scans, persists, and checks mem0 memories for freshness.",
   "keywords": ["ai", "agent-memory", "llm", "freshness", "mem0", "factlayer"],
   "type": "module",

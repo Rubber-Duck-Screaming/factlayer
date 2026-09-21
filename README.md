@@ -4,6 +4,7 @@
 [![npm cli](https://img.shields.io/npm/v/%40factlayer%2Fcli?label=%40factlayer%2Fcli)](https://www.npmjs.com/package/@factlayer/cli)
 [![npm adapter-mem0](https://img.shields.io/npm/v/%40factlayer%2Fadapter-mem0?label=%40factlayer%2Fadapter-mem0)](https://www.npmjs.com/package/@factlayer/adapter-mem0)
 [![npm mcp-server](https://img.shields.io/npm/v/%40factlayer%2Fmcp-server?label=%40factlayer%2Fmcp-server)](https://www.npmjs.com/package/@factlayer/mcp-server)
+[![npm adapter-zep](https://img.shields.io/npm/v/%40factlayer%2Fadapter-zep?label=%40factlayer%2Fadapter-zep)](https://www.npmjs.com/package/@factlayer/adapter-zep)
 
 **A freshness-check layer for AI agent memory plugs into Mem0, Zep, Cognee, or your own database, and catches facts before they go stale.**
 
@@ -109,6 +110,20 @@ const results = await factlayer.scanMem0(userId);
 // each result: { fact, status: "fresh" | "needs-verification" }
 ```
 
+### Using it with Zep
+
+```bash
+bun add @factlayer/adapter-zep
+```
+
+```ts
+import { ZepAdapter } from "@factlayer/adapter-zep";
+
+const factlayer = new ZepAdapter(zepClient);
+const results = await factlayer.scanZep(userId);
+// each result: { fact, status: "fresh" | "needs-verification" }
+```
+
 ### Using it as an MCP server
 
 Point any MCP-compatible agent (Claude Code, Claude Desktop, or your own) at FactLayer, and it gains freshness-checking as a tool call no code changes to your agent required.
@@ -192,7 +207,7 @@ Bun + TypeScript throughout. Local embedding classification via `@xenova/transfo
 - [x] Two-tier auto-classification (keyword → local embedding)
 - [x] Mem0 adapter read, classify, persist, and act on real Mem0 data
 - [x] MCP server `check_freshness`, `mark_verified`, `scan_mem0_freshness`
-- [ ] Zep adapter
+- [x] Zep adapter
 - [ ] Cognee adapter
 - [ ] Contradiction-aware handoff (defer to Graphiti-style detection where available, rather than reimplementing it)
 

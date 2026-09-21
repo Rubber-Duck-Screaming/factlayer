@@ -1,6 +1,6 @@
 {
   "name": "@factlayer/cli",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Command-line tool for adding facts and re-verifying the ones that have gone stale.",
   "keywords": ["ai", "agent-memory", "llm", "freshness", "cli", "factlayer"],
   "type": "module",
