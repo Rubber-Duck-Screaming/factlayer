@@ -27,7 +27,7 @@ Existing memory tools solve _adjacent_ problems well:
 
 - **Cognee** decays facts based on _how often they're accessed_. Excellent but a wrong fact that's still asked about often looks perfectly healthy by that measure.
 
-- **Mem0** now synthesizes and supersedes facts in the background — a real step forward, but still reactive to new information, not proactive about facts that were simply never revisited. Mem0's own 2026 state-of-the-field report names this gap directly. memory decay works for facts nobody cares about anymore, but a fact that's still retrieved constantly can go quietly wrong with nothing to catch it even the team closest to the problem calls it unsolved.
+- **Mem0** now synthesizes and supersedes facts in the background a real step forward, but still reactive to new information, not proactive about facts that were simply never revisited. Mem0's own 2026 state-of-the-field report names this gap directly. memory decay works for facts nobody cares about anymore, but a fact that's still retrieved constantly can go quietly wrong with nothing to catch it even the team closest to the problem calls it unsolved.
 
 None of them ask the question FactLayer exists to ask: **"nothing has contradicted this fact but it's the kind of fact that tends to change, and it's been a while. Should we trust it blindly?"**
 
@@ -178,7 +178,7 @@ Available tools:
 - `mark_verified` marks a stored fact as verified as of now (no setup required)
 - `scan_mem0_freshness` scans a Mem0 user's memories end to end and persists them locally (requires `MEM0_API_KEY`)
 - `scan_zep_freshness` scans a Zep user's graph facts end to end and persists them locally (requires `ZEP_API_KEY`)
-- `scan_cognee_freshness` scans a Cognee dataset's ingested records end to end and persists them locally (requires `OPENAI_TOKEN`, the env var Cognee's own SDK documents; `OPENAI_API_KEY` works as a fallback)
+- `scan_cognee_freshness` scans a Cognee dataset's ingested records end to end and persists them locally (requires `OPENAI_TOKEN`, the env var Cognee's own SDK documents `OPENAI_API_KEY` works as a fallback)
 
 ### Environment variables
 
