@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { createCogneeClient, scanCognee } from "@factlayer/adapter-cognee";
+import type { CogneeClient } from "@factlayer/adapter-cognee";
 import { createMem0Client, scanMem0 } from "@factlayer/adapter-mem0";
 import type { Mem0Client } from "@factlayer/adapter-mem0";
 import { createZepClient, scanZep } from "@factlayer/adapter-zep";
@@ -187,6 +189,62 @@ export async function scanZepFreshness(
   zepClient: ZepClient = defaultZepClient(),
 ) {
   const scanned = await scanZep(zepClient, input.userId);
+
+  scanned.sort((a, b) => {
+    if (a.result.status === b.result.status) return 0;
+    return a.result.status === "needs-verification" ? -1 : 1;
+  });
+
+  return {
+    content: [{ type: "text" as const, text: JSON.stringify(scanned) }],
+    structuredContent: { results: scanned },
+  };
+}
+
+export const scanCogneeFreshnessInputSchema = z.object({
+  datasetId: z.string(),
+});
+
+export type ScanCogneeFreshnessInput = z.infer<typeof scanCogneeFreshnessInputSchema>;
+
+// Exported for testing: OPENAI_TOKEN takes priority over OPENAI_API_KEY --
+// it's the name @cognee/cognee-ts@0.2.0's own README actually documents,
+// consistently, in its quick-start, config example, and env-var table.
+// OPENAI_API_KEY (the standard OpenAI SDK convention) is kept only as a
+// fallback, in case it turns out to be the one that actually works at
+// smoke-test time.
+export function resolveCogneeApiKey(): string | undefined {
+  return process.env.OPENAI_TOKEN ?? process.env.OPENAI_API_KEY;
+}
+
+// Unlike defaultMem0Client/defaultZepClient, this one is async: Cognee's
+// own client factory has to await warm() before the client is usable (see
+// adapter-cognee/src/client.ts), so it can't be built eagerly as a default
+// parameter value the way the sync mem0/Zep clients are.
+async function defaultCogneeClient(): Promise<CogneeClient> {
+  const apiKey = resolveCogneeApiKey();
+  if (!apiKey) {
+    throw new Error(
+      "Set OPENAI_TOKEN (or OPENAI_API_KEY) in the environment to use scan_cognee_freshness.",
+    );
+  }
+  return createCogneeClient({ llmApiKey: apiKey });
+}
+
+// Scans a Cognee dataset's ingested records end to end: pulls them via
+// datasets.listData() (see scanCognee -- this is pre-extraction source
+// material, not extracted graph facts; see adapter-cognee's mapper.ts for
+// why), persists each as a local fact keyed by Cognee's own data id, checks
+// freshness, and returns results sorted with needs-verification facts
+// first. The cogneeClient parameter defaults to a real client built from
+// OPENAI_TOKEN/OPENAI_API_KEY, but tests inject a fake one directly -- same
+// pattern as adapter-cognee's own scan.test.ts.
+export async function scanCogneeFreshness(
+  input: ScanCogneeFreshnessInput,
+  cogneeClient?: CogneeClient,
+) {
+  const client = cogneeClient ?? (await defaultCogneeClient());
+  const scanned = await scanCognee(client, input.datasetId);
 
   scanned.sort((a, b) => {
     if (a.result.status === b.result.status) return 0;

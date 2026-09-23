@@ -1,14 +1,12 @@
 {
   "name": "@factlayer/cli",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Command-line tool for adding facts and re-verifying the ones that have gone stale.",
   "keywords": ["ai", "agent-memory", "llm", "freshness", "cli", "factlayer"],
   "type": "module",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "publishConfig": {
     "access": "public"
   },

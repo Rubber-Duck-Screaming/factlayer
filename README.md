@@ -5,6 +5,7 @@
 [![npm adapter-mem0](https://img.shields.io/npm/v/%40factlayer%2Fadapter-mem0?label=%40factlayer%2Fadapter-mem0)](https://www.npmjs.com/package/@factlayer/adapter-mem0)
 [![npm mcp-server](https://img.shields.io/npm/v/%40factlayer%2Fmcp-server?label=%40factlayer%2Fmcp-server)](https://www.npmjs.com/package/@factlayer/mcp-server)
 [![npm adapter-zep](https://img.shields.io/npm/v/%40factlayer%2Fadapter-zep?label=%40factlayer%2Fadapter-zep)](https://www.npmjs.com/package/@factlayer/adapter-zep)
+[![npm adapter-cognee](https://img.shields.io/npm/v/%40factlayer%2Fadapter-cognee?label=%40factlayer%2Fadapter-cognee)](https://www.npmjs.com/package/@factlayer/adapter-cognee)
 
 **A freshness-check layer for AI agent memory plugs into Mem0, Zep, Cognee, or your own database, and catches facts before they go stale.**
 
@@ -103,11 +104,11 @@ bun add @factlayer/adapter-mem0
 ```
 
 ```ts
-import { Mem0Adapter } from "@factlayer/adapter-mem0";
+import { createMem0Client, scanMem0 } from "@factlayer/adapter-mem0";
 
-const factlayer = new Mem0Adapter(mem0Client);
-const results = await factlayer.scanMem0(userId);
-// each result: { fact, status: "fresh" | "needs-verification" }
+const client = createMem0Client(process.env.MEM0_API_KEY);
+const results = await scanMem0(client, { filters: { user_id: userId } });
+// each result: { fact, result }  result.status is "fresh" | "needs-verification"
 ```
 
 ### Using it with Zep
@@ -117,11 +118,35 @@ bun add @factlayer/adapter-zep
 ```
 
 ```ts
-import { ZepAdapter } from "@factlayer/adapter-zep";
+import { createZepClient, scanZep } from "@factlayer/adapter-zep";
 
-const factlayer = new ZepAdapter(zepClient);
-const results = await factlayer.scanZep(userId);
-// each result: { fact, status: "fresh" | "needs-verification" }
+const client = createZepClient(process.env.ZEP_API_KEY);
+const results = await scanZep(client, userId);
+// each result: { fact, result }  result.status is "fresh" | "needs-verification"
+```
+
+### Using it with Cognee
+
+Mem0 and Zep are hosted services you just read from point FactLayer at your existing account and it starts checking freshness. Cognee is different: in self-hosted mode, _you_ run the Cognee instance and configure your own LLM provider (any OpenAI-compatible endpoint) to do the ingestion and knowledge-graph extraction. FactLayer's Cognee adapter doesn't provide an LLM and doesn't run extraction itself it only reads records you've already fed into your own Cognee instance, tracking the freshness of that ingested source material.
+
+```bash
+bun add @factlayer/adapter-cognee
+```
+
+```ts
+import { createCogneeClient, scanCognee } from "@factlayer/adapter-cognee";
+
+const client = await createCogneeClient({
+  llmModel: "your-model-id",
+  llmApiKey: process.env.YOUR_LLM_KEY,
+  // llmEndpoint: process.env.YOUR_LLM_ENDPOINT, // only needed for a non-OpenAI, OpenAI-compatible provider
+});
+
+// datasetId is Cognee's own dataset UUID, not the dataset name you passed
+// to Cognee's add()/remember() calls  look it up via the underlying
+// @cognee/cognee-ts SDK's datasets.list() if you only have the name.
+const results = await scanCognee(client, datasetId);
+// each result: { fact, result }  result.status is "fresh" | "needs-verification"
 ```
 
 ### Using it as an MCP server
@@ -143,7 +168,7 @@ Point any MCP-compatible agent (Claude Code, Claude Desktop, or your own) at Fac
 
 ![Mem0 MCP Loop Demo](./docs/MCP-loop-2.gif)
 
-`check_freshness`, `add_fact`, and `scan_facts` work with zero setup they're fully local, backed by FactLayer's own SQLite store, and need no external account. `scan_mem0_freshness` and `scan_zep_freshness` bridge to an existing memory system, so each needs its provider's API key set as an environment variable before starting the server (`MEM0_API_KEY`, `ZEP_API_KEY`).
+`check_freshness`, `add_fact`, and `scan_facts` work with zero setup they're fully local, backed by FactLayer's own SQLite store, and need no external account. `scan_mem0_freshness`, `scan_zep_freshness`, and `scan_cognee_freshness` bridge to an existing memory system, so each needs its provider's API key set as an environment variable before starting the server (`MEM0_API_KEY`, `ZEP_API_KEY`, `OPENAI_TOKEN`).
 
 Available tools:
 
@@ -153,10 +178,11 @@ Available tools:
 - `mark_verified` marks a stored fact as verified as of now (no setup required)
 - `scan_mem0_freshness` scans a Mem0 user's memories end to end and persists them locally (requires `MEM0_API_KEY`)
 - `scan_zep_freshness` scans a Zep user's graph facts end to end and persists them locally (requires `ZEP_API_KEY`)
+- `scan_cognee_freshness` scans a Cognee dataset's ingested records end to end and persists them locally (requires `OPENAI_TOKEN`, the env var Cognee's own SDK documents; `OPENAI_API_KEY` works as a fallback)
 
 ### Environment variables
 
-Only needed for the two tools that bridge to an existing memory system leave either out if you're not using that provider.
+Only needed for the tools that bridge to an existing memory system leave any out if you're not using that provider.
 
 ```json
 {
@@ -166,7 +192,8 @@ Only needed for the two tools that bridge to an existing memory system leave eit
       "args": ["run", "packages/mcp-server/src/index.ts"],
       "env": {
         "MEM0_API_KEY": "your-mem0-api-key",
-        "ZEP_API_KEY": "your-zep-api-key"
+        "ZEP_API_KEY": "your-zep-api-key",
+        "OPENAI_TOKEN": "your-openai-compatible-api-key"
       }
     }
   }
@@ -193,7 +220,9 @@ factlayer/
 │   ├── core/              check() engine, classify(), SQLite store
 │   ├── cli/                factcheck command-line tool
 │   ├── adapter-mem0/       read + persist bridge to Mem0
-│   └── mcp-server/         exposes core over MCP (check_freshness, mark_verified, scan_mem0_freshness)
+│   ├── adapter-zep/        read + persist bridge to Zep
+│   ├── adapter-cognee/     read + persist bridge to Cognee
+│   └── mcp-server/         exposes core over MCP (check_freshness, mark_verified, scan_mem0_freshness, scan_zep_freshness, scan_cognee_freshness)
 ```
 
 Bun + TypeScript throughout. Local embedding classification via `@xenova/transformers` (`all-MiniLM-L6-v2`) no external API calls, no GPU required.
@@ -208,7 +237,7 @@ Bun + TypeScript throughout. Local embedding classification via `@xenova/transfo
 - [x] Mem0 adapter read, classify, persist, and act on real Mem0 data
 - [x] MCP server `check_freshness`, `mark_verified`, `scan_mem0_freshness`
 - [x] Zep adapter
-- [ ] Cognee adapter
+- [x] Cognee adapter
 - [ ] Contradiction-aware handoff (defer to Graphiti-style detection where available, rather than reimplementing it)
 
 ---

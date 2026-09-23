@@ -12,3 +12,7 @@ coverage/
 *.db
 *.sqlite
 *.sqlite3
+*.db-shm
+*.db-wal
+.cognee_system/
+.data_storage/

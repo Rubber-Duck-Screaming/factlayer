@@ -1,8 +1,8 @@
 {
-  "name": "@factlayer/adapter-zep",
+  "name": "@factlayer/adapter-cognee",
   "version": "0.7.0",
-  "description": "Freshness checks for Zep graph facts — flags stale or expired edges",
-  "keywords": ["ai", "agent-memory", "llm", "freshness", "zep", "factlayer"],
+  "description": "Cognee adapter for FactLayer: scans, persists, and checks freshness of Cognee-ingested source records.",
+  "keywords": ["ai", "agent-memory", "llm", "freshness", "cognee", "factlayer"],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@factlayer/core": "workspace:*",
-    "@getzep/zep-cloud": "^3.28.0"
+    "@cognee/cognee-ts": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

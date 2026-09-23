@@ -6,6 +6,8 @@ import {
   checkFreshnessInputSchema,
   markVerifiedInputSchema,
   markVerifiedTool,
+  scanCogneeFreshnessInputSchema,
+  scanCogneeFreshness,
   scanFacts,
   scanFactsInputSchema,
   scanMem0FreshnessInputSchema,
@@ -92,6 +94,22 @@ export function createServer(): McpServer {
     // Wrapped so the MCP framework's own second (context) argument never
     // reaches scanZepFreshness's zepClient override parameter.
     (args) => scanZepFreshness(args),
+  );
+
+  server.registerTool(
+    "scan_cognee_freshness",
+    {
+      title: "Scan Cognee freshness",
+      description:
+        "Scans a Cognee dataset's ingested source records (pre-extraction, not extracted graph " +
+        "facts -- see adapter-cognee's mapper.ts), persists each as a local fact (keyed by " +
+        "Cognee's own data id so mark_verified can act on it afterward), checks freshness, and " +
+        "returns results sorted with needs-verification facts first.",
+      inputSchema: scanCogneeFreshnessInputSchema,
+    },
+    // Wrapped so the MCP framework's own second (context) argument never
+    // reaches scanCogneeFreshness's cogneeClient override parameter.
+    (args) => scanCogneeFreshness(args),
   );
 
   return server;

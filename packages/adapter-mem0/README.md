@@ -18,4 +18,6 @@ const results = await scanMem0(client, { filters: { user_id: "alice" } });
 // each result: { fact, result: { status: "fresh" | "needs-verification", ... } }
 ```
 
+Mem0 memories don't carry a category of their own, so this adapter runs each memory's text through FactLayer's `classify()` to assign one before checking freshness.
+
 See the [main repo](https://github.com/Rubber-Duck-Screaming/factlayer) for the full architecture, the freshness model, and how this adapter fits alongside `@factlayer/core`, `@factlayer/cli`, and `@factlayer/mcp-server`.

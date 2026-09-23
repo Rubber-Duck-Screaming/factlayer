@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it } from "bun:test";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import type { CogneeClient, CogneeDataRecord } from "@factlayer/adapter-cognee";
 import type { Mem0Client, Mem0Memory } from "@factlayer/adapter-mem0";
 import type { ZepClient, ZepEntityEdge } from "@factlayer/adapter-zep";
 import { addFact, getFact, setStorePath } from "@factlayer/core";
@@ -6,6 +10,8 @@ import {
   addFactTool,
   checkFreshness,
   markVerifiedTool,
+  resolveCogneeApiKey,
+  scanCogneeFreshness,
   scanFacts,
   scanMem0Freshness,
   scanZepFreshness,
@@ -282,5 +288,127 @@ describe("scan_zep_freshness", () => {
 
     expect(verifyResult.isError).toBeUndefined();
     expect(verifyResult.content[0]?.text).toContain("edge-stale");
+  });
+});
+
+describe("resolveCogneeApiKey", () => {
+  const originalToken = process.env.OPENAI_TOKEN;
+  const originalApiKey = process.env.OPENAI_API_KEY;
+
+  afterEach(() => {
+    if (originalToken === undefined) delete process.env.OPENAI_TOKEN;
+    else process.env.OPENAI_TOKEN = originalToken;
+
+    if (originalApiKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = originalApiKey;
+  });
+
+  it("uses OPENAI_TOKEN, not OPENAI_API_KEY, when both are set to different values", () => {
+    process.env.OPENAI_TOKEN = "token-value";
+    process.env.OPENAI_API_KEY = "api-key-value";
+
+    expect(resolveCogneeApiKey()).toBe("token-value");
+  });
+
+  it("falls back to OPENAI_API_KEY when OPENAI_TOKEN is unset", () => {
+    delete process.env.OPENAI_TOKEN;
+    process.env.OPENAI_API_KEY = "api-key-value";
+
+    expect(resolveCogneeApiKey()).toBe("api-key-value");
+  });
+
+  it("returns undefined when neither is set", () => {
+    delete process.env.OPENAI_TOKEN;
+    delete process.env.OPENAI_API_KEY;
+
+    expect(resolveCogneeApiKey()).toBeUndefined();
+  });
+});
+
+function fakeCogneeClient(records: CogneeDataRecord[]): CogneeClient {
+  return {
+    async listData() {
+      return records;
+    },
+  };
+}
+
+describe("scan_cognee_freshness", () => {
+  let dir: string;
+  let fileCounter: number;
+
+  beforeEach(() => {
+    setStorePath(":memory:");
+    dir = mkdtempSync(join(tmpdir(), "mcp-server-scan-cognee-"));
+    fileCounter = 0;
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  // adapter-cognee's toFact() reads text from a real file at
+  // raw_data_location (record.name is an internal hash-based filename, not
+  // content -- see adapter-cognee/src/mapper.ts). This writes a real file
+  // per record instead of mocking node:fs, same as adapter-cognee's own
+  // test suite.
+  function writeRecordFile(text: string): string {
+    const filePath = join(dir, `text_${fileCounter++}.txt`);
+    writeFileSync(filePath, text);
+    return `file://${filePath}`;
+  }
+
+  it("scans Cognee, persists facts locally, and sorts needs-verification first", async () => {
+    const now = Date.now();
+    const client = fakeCogneeClient([
+      {
+        id: "data-fresh",
+        name: "text_hash-unrelated-to-content-1",
+        raw_data_location: writeRecordFile("User works at Acme Corp"),
+        created_at: new Date(now).toISOString(),
+        updated_at: null,
+        last_accessed: null,
+        importance_weight: null,
+      },
+      {
+        id: "data-stale",
+        name: "text_hash-unrelated-to-content-2",
+        raw_data_location: writeRecordFile("User lives in Lisbon"),
+        created_at: new Date(now - 200 * DAY_MS).toISOString(),
+        updated_at: null,
+        last_accessed: null,
+        importance_weight: null,
+      },
+    ]);
+
+    const result = await scanCogneeFreshness({ datasetId: "dataset-1" }, client);
+
+    expect(result.structuredContent.results).toHaveLength(2);
+    expect(result.structuredContent.results[0]?.fact.id).toBe("data-stale");
+    expect(result.structuredContent.results[0]?.fact.text).toBe("User lives in Lisbon");
+    expect(result.structuredContent.results[0]?.result.status).toBe("needs-verification");
+    expect(result.content[0]?.type).toBe("text");
+  });
+
+  it("persists scanned facts so mark_verified succeeds afterward, instead of Fact not found", async () => {
+    const now = Date.now();
+    const client = fakeCogneeClient([
+      {
+        id: "data-stale",
+        name: "text_hash-unrelated-to-content",
+        raw_data_location: writeRecordFile("User lives in Lisbon"),
+        created_at: new Date(now - 200 * DAY_MS).toISOString(),
+        updated_at: null,
+        last_accessed: null,
+        importance_weight: null,
+      },
+    ]);
+
+    await scanCogneeFreshness({ datasetId: "dataset-1" }, client);
+
+    const verifyResult = await markVerifiedTool({ id: "data-stale" });
+
+    expect(verifyResult.isError).toBeUndefined();
+    expect(verifyResult.content[0]?.text).toContain("data-stale");
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@factlayer/core",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Freshness-check engine for AI agent memory: flags aging facts before they're used, with category half-lives and auto-classification.",
   "keywords": ["ai", "agent-memory", "llm", "freshness", "hallucination", "factlayer"],
   "type": "module",
